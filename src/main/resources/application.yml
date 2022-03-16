@@ -1,0 +1,48 @@
+spring:
+  #   "redis://127.0.0.1:7000" 레디슨 사용방식
+  redis:
+    cluster:
+      nodes:
+        - redis://34.125.183.107:7000
+        - redis://34.125.183.107:7001
+        - redis://34.125.183.107:7002
+        - redis://34.125.183.107:7003
+        - redis://34.125.183.107:7004
+        - redis://34.125.183.107:7005
+    port: 7000
+    host: 34.125.183.107
+
+# H2 Database
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/restapi;
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        #        show_sql: true
+        format_sql: true
+        default_batch_fetch_size: 100
+#    open-in-view: false
+
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 2000
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+#    org.hibernate.type: trace
+
+server:
+  error:
+    include-exception: false      # Response Exception 표시
+    include-message: always       # Response Exception Message 표시 (never | always | on_param)
+    include-stacktrace: on_param  # Response Stack Trace 표시 (never | always | on_param)
+    whitelabel.enabled: true      # 에러 발생 시 Spring 기본 에러 페이지 노출 여부
