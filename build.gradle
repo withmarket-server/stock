@@ -19,8 +19,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: '2.6.3'
 	implementation group: 'org.redisson', name: 'redisson', version: '3.16.1'
-
-	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.1'
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.3'
 
 	runtimeOnly 'com.h2database:h2:2.1.210'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

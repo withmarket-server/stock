@@ -1,27 +1,40 @@
 spring:
-  #   "redis://127.0.0.1:7000" 레디슨 사용방식
+  # 레디스 정보 설정
+  # "redis://127.0.0.1:7000" 레디슨 사용방식
   redis:
     cluster:
       nodes:
-        - redis://34.125.183.107:7000
-        - redis://34.125.183.107:7001
-        - redis://34.125.183.107:7002
-        - redis://34.125.183.107:7003
-        - redis://34.125.183.107:7004
-        - redis://34.125.183.107:7005
-    port: 7000
-    host: 34.125.183.107
+        - redis://34.64.88.107:7000
+        - redis://34.64.88.107:7001
+        - redis://34.64.88.107:7002
+        - redis://34.64.88.107:7003
+        - redis://34.64.88.107:7004
+        - redis://34.64.88.107:7005
+    port: 6379
+    host: 34.64.88.107
+#    host: 127.0.0.1
+#    lettuce:
+#      pool:
+#        max-active: # default 8
+#        max-idle: # default 8
+#        max-wait: # default -1ms, 풀에서 커넥션 얻을때까지 대기 시간, 음수면 무기한
+#        min-idle: # default 0, time-between-eviction-runs있을때만 유효
+#        time-between-eviction-runs: #유휴 커넥션을 제거하는 스레드의 실행 간격
 
-# H2 Database
+
+# 데이터 베이스 커넥션 정보 설정
   datasource:
-    url: jdbc:h2:tcp://localhost/~/restapi;
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+#    url: jdbc:h2:tcp://localhost/~/restapi;
+    url: jdbc:postgresql://localhost:5434/spring
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
 
+# jpa 설정
   jpa:
     hibernate:
       ddl-auto: create
+      dialect: org.hibernate.dialect.PostgreSQL10Dialect
     properties:
       hibernate:
         #        show_sql: true
@@ -29,17 +42,20 @@ spring:
         default_batch_fetch_size: 100
 #    open-in-view: false
 
+# 페이지네이션 설정
   data:
     web:
       pageable:
         default-page-size: 10
         max-page-size: 2000
 
+# 로깅 설정
 logging:
   level:
     org.hibernate.SQL: debug
 #    org.hibernate.type: trace
 
+# 에러 설정
 server:
   error:
     include-exception: false      # Response Exception 표시

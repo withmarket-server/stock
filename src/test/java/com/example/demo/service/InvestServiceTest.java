@@ -1,37 +1,42 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.Invest;
-import com.example.demo.entity.InvestProduct;
-import com.example.demo.entity.InvestState;
-import com.example.demo.repository.InvestRedisRepository;
-import com.example.demo.repository.InvestRepository;
+import com.example.demo.Invest.InvestService;
+import com.example.demo.Invest.entity.Invest;
+import com.example.demo.Invest.entity.InvestProduct;
+import com.example.demo.Invest.entity.InvestState;
+import com.example.demo.Invest.InvestRedisRepository;
+import com.example.demo.Invest.jpaRepository.InvestRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest
 class InvestServiceTest {
 
+    private static final int THREAD_POOL_SIZE = 30;
+
     @Autowired
     private InvestService investService;
+
     @Autowired
     private InvestRepository investRepository;
 
     @Autowired
-    private InvestRedisRepository InvestRedisRepository;
+    private InvestRedisRepository investRedisRepository;
 
     @Test
+    @BeforeEach
     public void dbInit() throws Exception {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        for(int i=5;i<10;i++) {
-            LocalDateTime dateTime = LocalDateTime.parse("2022-03-0"+ i + " 00:00:00", formatter);
-            LocalDateTime dateTime2 = LocalDateTime.parse("2022-03-1"+ i + " 23:59:59", formatter);
-
+        for(int i=1;i<10;i++) {
             InvestProduct investProduct = InvestProduct.builder()
                     .productId(Long.parseLong(String.valueOf(i)))
                     .productTitle("투자의시대" + i)
@@ -39,18 +44,18 @@ class InvestServiceTest {
                     .currentInvestingAmount(0L)
                     .investState(InvestState.ING)
                     .investors(0L)
-                    .startedAt(dateTime)
-                    .finishedAt(dateTime2)
+                    .startedAt("2022-03-1"+ i + " 00:00:00")
+                    .finishedAt("2022-03-2"+ i + " 23:59:59")
                     .build();
 
-            boolean isPass = InvestRedisRepository.update(investProduct);
+            boolean isPass = investRedisRepository.saveInvestProduct(investProduct);
             System.out.println("isPass = " + isPass);
         }
     }
 
     @Test
     public void investServiceTest() throws Exception {
-        Collection<InvestProduct> investProducts = InvestRedisRepository.findInvestProductList();
+        Collection<InvestProduct> investProducts = investRedisRepository.findInvestProductList();
         System.out.println("investProducts.size() = " + investProducts.size());
         investProducts.forEach(investProduct ->
                 System.out.println("investProduct.getProductId() = " + investProduct.getFinishedAt())
@@ -62,32 +67,25 @@ class InvestServiceTest {
         System.out.println("LocalDateTime.now() = " + LocalDateTime.now());
     }
 
+
     @Test
-    public void redissonListOpsTest() throws Exception {
-        //given
-        Long userId = 1515L;
-        InvestProduct investProduct = InvestRedisRepository.findInvestProduct("1");
-        List<Invest> newList = new ArrayList<>();
+    public void threadTest() throws InterruptedException {
+        ExecutorService service = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
-        for (int i = 0;i < 10; i++) {
-            Invest invest = Invest.builder()
-                    .userId(userId)
-                    .productId(investProduct.getProductId())
-                    .productTitle(investProduct.getProductTitle())
-                    .totalInvestingAmount(investProduct.getTotalInvestingAmount())
-                    .myInvestingAmount(5000L)
-                    .createdAt(LocalDateTime.now())
-                    .build();
+        Invest invest = Invest.builder()
+                .createdAt("")
+                .userId(1L)
+                .productId(4L)
+                .myInvestingAmount(10000L)
+                .build();
 
-            newList.add(invest);
+        for (int i = 0; i < THREAD_POOL_SIZE; i++) {
+            service.execute(() -> {
+                investService.investByRedis(invest);
+            });
         }
 
-        System.out.println("newList.size() = " + newList.size());
-
-        InvestRedisRepository.addAll(newList, String.valueOf(userId));
-
-        List<Invest> invests = InvestRedisRepository.findInvestByUser(String.valueOf(userId));
-
-        invests.forEach(e -> System.out.println("e = " + e.getProductTitle()));
+        service.shutdown();
+        service.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
     }
 }

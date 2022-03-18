@@ -1,6 +1,6 @@
-package com.example.demo.repository;
+package com.example.demo.Invest.jpaRepository;
 
-import com.example.demo.entity.Invest;
+import com.example.demo.Invest.entity.Invest;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,12 +1,10 @@
-package com.example.demo.entity;
+package com.example.demo.Invest.entity;
 
-import com.example.demo.error.CustomException;
+import com.example.demo.error.CreateException;
 import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-
-import java.time.LocalDateTime;
 
 import static com.example.demo.error.ErrorCode.EXCEED_TOTAL_AMOUNT;
 import static com.example.demo.error.ErrorCode.SOLD_OUT;
@@ -27,12 +25,12 @@ public class InvestProduct {
     private Long investors;
     private InvestState investState;
 
-    private LocalDateTime startedAt;
-    private LocalDateTime finishedAt;
+    private String startedAt;
+    private String finishedAt;
 
     public void addAmount(Long amount) {
-        if (investState == InvestState.COMPLETE) throw new CustomException(SOLD_OUT);
-        if (currentInvestingAmount + amount > totalInvestingAmount) throw new CustomException(EXCEED_TOTAL_AMOUNT);
+        if (investState == InvestState.COMPLETE) throw new CreateException(SOLD_OUT);
+        if (currentInvestingAmount + amount > totalInvestingAmount) throw new CreateException(EXCEED_TOTAL_AMOUNT);
         currentInvestingAmount += amount;
         investors++;
         if (totalInvestingAmount - currentInvestingAmount < 1000) investState = InvestState.COMPLETE;
