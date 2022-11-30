@@ -1,1 +1,1 @@
-# global-lock
+# stock server
